@@ -18,5 +18,5 @@ mybatis:
 logging:
   level:
     root: INFO
-    net.isucon6.qualify.mapper: DEBUG
-  file: "app.log"
+    # net.isucon6.qualify.mapper: DEBUG
+  file: "isuda.log"
