@@ -6,22 +6,22 @@ import java.util.stream.Collectors;
 import net.isucon6.qualify.response.StarResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class StarService {
 
     @Autowired
-    private RestOperations isutarRestOperation;
+    private RestTemplate isutarRestTemplate;
 
     public List<String> fetch(String keyword) {
-        return isutarRestOperation.getForObject("/stars?keyword=" + keyword, StarResponse.class).getStars()
+        return isutarRestTemplate.getForObject("/stars?keyword=" + keyword, StarResponse.class).getStars()
                 .stream()
                 .map(StarResponse.Star::getUserName)
                 .collect(Collectors.toList());
     }
 
     public void initialize() {
-        isutarRestOperation.getForObject("/initialize", String.class);
+        isutarRestTemplate.getForObject("/initialize", String.class);
     }
 }
