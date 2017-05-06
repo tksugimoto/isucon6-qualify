@@ -9,4 +9,7 @@
         ON DUPLICATE KEY UPDATE
             author_id = #{authorId}, keyword = #{keyword}, description = #{description}, updated_at = NOW()
     </insert>
+    <select id="findAllKeywordsOrderByLength" resultType="string">
+        SELECT keyword FROM entry ORDER BY CHARACTER_LENGTH(keyword) DESC
+    </select>
 </mapper>

@@ -13,6 +13,7 @@ import net.isucon6.qualify.domain.Entry;
 import net.isucon6.qualify.dto.EntryDto;
 import net.isucon6.qualify.exception.NotFoundException;
 import net.isucon6.qualify.mapper.EntryMapper;
+import net.isucon6.qualify.mapper.KeywordMapper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -27,13 +28,15 @@ public class EntryService {
     private final EntryMapper entryMapper;
     private final ModelMapper modelMapper;
     private final StarService starService;
+    private final KeywordMapper keywordMapper;
     private final Logger log = org.slf4j.LoggerFactory.getLogger(EntryService.class);
 
     @Autowired
-    public EntryService(EntryMapper entryMapper, ModelMapper modelMapper, StarService starService) {
+    public EntryService(EntryMapper entryMapper, ModelMapper modelMapper, StarService starService, KeywordMapper keywordMapper) {
         this.entryMapper = entryMapper;
         this.modelMapper = modelMapper;
         this.starService = starService;
+        this.keywordMapper = keywordMapper;
     }
 
     private String htmlify(final String content) {
@@ -41,16 +44,15 @@ public class EntryService {
             return "";
         }
 
-        List<Entry> keywords = entryMapper.findAllOrderByLength();
+        List<String> keywords = keywordMapper.findAllKeywordsOrderByLength();
 
         Matcher matcher = Pattern.compile(keywords.stream()
-                .map(Entry::getKeyword)
                 .map(Pattern::quote)
                 .collect(Collectors.joining("|", "(", ")"))).matcher(content);
         Map<String, String> kw2sha = keywords.stream()
                 .collect(Collectors.toMap(
-                        Entry::getKeyword,
-                        k -> "isuda_" + DigestUtils.sha1Hex(k.getKeyword())
+                        keyword -> keyword,
+                        keyword -> "isuda_" + DigestUtils.sha1Hex(keyword)
                 ));
         StringBuffer sbKw2Sha = new StringBuffer();
         while (matcher.find()) {

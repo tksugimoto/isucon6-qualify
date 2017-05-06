@@ -1,5 +1,6 @@
 package net.isucon6.qualify.mapper;
 
+import java.util.List;
 import net.isucon6.qualify.domain.Keyword;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
@@ -8,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository("keywordMapper")
 public interface KeywordMapper {
     void insert(Keyword params);
+    List<String> findAllKeywordsOrderByLength();
 }
