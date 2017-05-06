@@ -7,6 +7,7 @@ import java.util.Date;
 
 import net.isucon6.qualify.domain.Entry;
 import net.isucon6.qualify.mapper.EntryMapper;
+import net.isucon6.qualify.mapper.KeywordMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -20,24 +21,26 @@ import static org.hamcrest.Matchers.is;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EntryServiceTest {
-    @Mock
+    @Autowired
     private EntryMapper entryMapper;
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
     private StarService starService;
+    @Mock
+    private KeywordMapper keywordMapper;
 
     @Test
     public void testHtmlify() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String description = "123の説明です. 以下の文字列はリンクのはずです. ジゴロ / re[ge]xp / /html/escape";
-        Mockito.when(entryMapper.findAllOrderByLength()).thenReturn(new ArrayList<Entry>() {{
-            add(new Entry(1L, 1L, "123", description, new Date(), new Date()));
-            add(new Entry(2L, 1L, "ジゴロ", "日本語文字列の置換の検査", new Date(), new Date()));
-            add(new Entry(3L, 1L, "re[ge]xp", "正規表現が入っててもエスケープされる検査", new Date(), new Date()));
-            add(new Entry(4L, 1L, "/html/escape", "HTML特殊文字がエスケープされる検査", new Date(), new Date()));
+        Mockito.when(keywordMapper.findAllKeywordsOrderByLength()).thenReturn(new ArrayList<String>() {{
+            add("123");
+            add("ジゴロ");
+            add("re[ge]xp");
+            add("/html/escape");
         }});
 
-        EntryService entryService = new EntryService(entryMapper, modelMapper, starService);
+        EntryService entryService = new EntryService(entryMapper, modelMapper, starService, keywordMapper);
         Method method = entryService.getClass().getDeclaredMethod("htmlify", String.class);
         method.setAccessible(true);
         String actual = (String) method.invoke(entryService, description);
