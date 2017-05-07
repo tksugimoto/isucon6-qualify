@@ -13,4 +13,8 @@ public class KeywordService {
     public void insert(Keyword keyword) {
         keywordMapper.insert(keyword);
     }
+
+    public boolean exists(String keyword) {
+        return keywordMapper.exists(keyword);
+    }
 }

@@ -12,7 +12,7 @@ public class KeywordService {
     private RestOperations isudaRestOperations;
 
     public boolean exists(String keyword) {
-        ResponseEntity res = isudaRestOperations.getForEntity("/keyword/" + keyword, String.class);
+        ResponseEntity res = isudaRestOperations.getForEntity("/api/exists/keyword/" + keyword, String.class);
         return res.getStatusCode() != HttpStatus.NOT_FOUND;
     }
 }

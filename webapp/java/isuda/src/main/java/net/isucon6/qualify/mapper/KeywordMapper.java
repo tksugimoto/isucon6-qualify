@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface KeywordMapper {
     void insert(Keyword params);
     List<String> findAllKeywordsOrderByLength();
+    boolean exists(String keyword);
 }

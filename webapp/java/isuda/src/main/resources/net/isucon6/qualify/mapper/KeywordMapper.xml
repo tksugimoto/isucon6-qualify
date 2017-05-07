@@ -12,4 +12,7 @@
     <select id="findAllKeywordsOrderByLength" resultType="string">
         SELECT keyword FROM entry ORDER BY CHARACTER_LENGTH(keyword) DESC
     </select>
+    <select id="exists" resultType="boolean">
+        SELECT EXISTS(SELECT 1 FROM entry WHERE keyword = #{keyword})
+    </select>
 </mapper>

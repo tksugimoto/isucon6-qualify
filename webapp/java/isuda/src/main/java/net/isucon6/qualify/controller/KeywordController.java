@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -56,6 +57,18 @@ public class KeywordController {
         );
 
         return new ModelAndView("redirect:/");
+    }
+
+    @RequestMapping(value = "/api/exists/keyword/{keyword}")
+    @ResponseBody
+    public String exists(@PathVariable("keyword") String keyword) {
+        if (StringUtils.isEmpty(keyword)) throw new BadRequestException();
+
+        if (keywordService.exists(keyword)) {
+            return "exists";
+        } else {
+            throw new NotFoundException();
+        }
     }
 
     @SetName
