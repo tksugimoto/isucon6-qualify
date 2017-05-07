@@ -57,18 +57,31 @@ public class EntryService {
                 return "";
             }
 
-            Matcher matcher = Pattern.compile(keywords.stream()
+
+            log.info("htmlify Pattern.compile start: " + currentTime());
+            Pattern pattern = Pattern.compile(keywords.stream()
                     .map(Pattern::quote)
-                    .collect(Collectors.joining("|", "(", ")"))).matcher(content);
+                    .collect(Collectors.joining("|", "(", ")")));
+
+            log.info("htmlify Pattern.compile end: " + currentTime());
+
+            Matcher matcher = pattern.matcher(content);
+
+            log.info("htmlify pattern.matcher end: " + currentTime());
+
             Map<String, String> kw2sha = keywords.stream()
                     .collect(Collectors.toMap(
                             keyword -> keyword,
                             keyword -> "isuda_" + DigestUtils.sha1Hex(keyword)
                     ));
+
+            log.info("htmlify kw2sha create end: " + currentTime());
+
             StringBuffer sbKw2Sha = new StringBuffer();
             while (matcher.find()) {
                 matcher.appendReplacement(sbKw2Sha, kw2sha.get(matcher.group()));
             }
+            log.info("htmlify while (matcher.find()) end: " + currentTime());
             String result = matcher.appendTail(sbKw2Sha).toString();
             try {
                 for (Map.Entry<String, String> e : kw2sha.entrySet()) {
