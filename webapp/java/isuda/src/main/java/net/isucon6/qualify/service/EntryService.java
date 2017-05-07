@@ -106,8 +106,11 @@ public class EntryService {
 
         EntryDto entryDto = modelMapper.map(entry, EntryDto.class);
         HtmlifyService htmlifyService = new HtmlifyService();
+        log.info("htmlify start:" + keyword);
         entryDto.setHtml(htmlifyService.htmlify(entry.getDescription()));
+        log.info("htmlify end:" + keyword);
         entryDto.setStars(starService.fetch(entry.getKeyword()));
+        log.info("starService.fetch end:" + keyword);
         return entryDto;
     }
 
