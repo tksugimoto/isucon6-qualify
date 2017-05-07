@@ -39,14 +39,19 @@ public class EntryService {
     }
 
     class HtmlifyService {
-        private final List<String> keywords;
         private final Pattern pattern;
+        private final Map<String, String> kw2sha;
 
         public HtmlifyService() {
-            keywords = keywordMapper.findAllKeywordsOrderByLength();
+            List<String> keywords = keywordMapper.findAllKeywordsOrderByLength();
             pattern = Pattern.compile(keywords.stream()
                     .map(Pattern::quote)
                     .collect(Collectors.joining("|", "(", ")")));
+            kw2sha = keywords.stream()
+                    .collect(Collectors.toMap(
+                            keyword -> keyword,
+                            keyword -> "isuda_" + DigestUtils.sha1Hex(keyword)
+                    ));
         }
 
         public String htmlify(final String content) {
@@ -55,11 +60,6 @@ public class EntryService {
             }
 
             Matcher matcher = pattern.matcher(content);
-            Map<String, String> kw2sha = keywords.stream()
-                    .collect(Collectors.toMap(
-                            keyword -> keyword,
-                            keyword -> "isuda_" + DigestUtils.sha1Hex(keyword)
-                    ));
             StringBuffer sbKw2Sha = new StringBuffer();
             while (matcher.find()) {
                 matcher.appendReplacement(sbKw2Sha, kw2sha.get(matcher.group()));
