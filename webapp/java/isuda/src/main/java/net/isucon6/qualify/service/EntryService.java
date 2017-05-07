@@ -40,9 +40,13 @@ public class EntryService {
 
     class HtmlifyService {
         private final List<String> keywords;
+        private final Pattern pattern;
 
         public HtmlifyService() {
             keywords = keywordMapper.findAllKeywordsOrderByLength();
+            pattern = Pattern.compile(keywords.stream()
+                    .map(Pattern::quote)
+                    .collect(Collectors.joining("|", "(", ")")));
         }
 
         public String htmlify(final String content) {
@@ -50,9 +54,7 @@ public class EntryService {
                 return "";
             }
 
-            Matcher matcher = Pattern.compile(keywords.stream()
-                    .map(Pattern::quote)
-                    .collect(Collectors.joining("|", "(", ")"))).matcher(content);
+            Matcher matcher = pattern.matcher(content);
             Map<String, String> kw2sha = keywords.stream()
                     .collect(Collectors.toMap(
                             keyword -> keyword,
