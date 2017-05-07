@@ -42,7 +42,9 @@ public class EntryService {
         private final List<String> keywords;
 
         public HtmlifyService() {
+            log.info("findAllKeywordsOrderByLength start");
             keywords = keywordMapper.findAllKeywordsOrderByLength();
+            log.info("findAllKeywordsOrderByLength end");
         }
 
         public String htmlify(final String content) {
