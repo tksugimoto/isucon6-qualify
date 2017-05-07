@@ -39,7 +39,7 @@ public class EntryService {
     }
 
     private Long currentTime() {
-        Long mills = System.nanoTime() / 1000;
+        Long mills = System.nanoTime() / 1000 / 1000;
         return mills % 10000;
     }
 
