@@ -42,9 +42,9 @@ public class EntryService {
         private final List<String> keywords;
 
         public HtmlifyService() {
-            log.info("findAllKeywordsOrderByLength start");
+            log.info("findAllKeywordsOrderByLength start: " + System.nanoTime());
             keywords = keywordMapper.findAllKeywordsOrderByLength();
-            log.info("findAllKeywordsOrderByLength end");
+            log.info("findAllKeywordsOrderByLength end:" + System.nanoTime());
         }
 
         public String htmlify(final String content) {
@@ -101,18 +101,18 @@ public class EntryService {
     }
 
     public EntryDto findHtmlByKeyword(String keyword) {
-        log.info("searching for " + keyword);
+        log.info("searching for:" + System.nanoTime() + ", " + keyword);
         Entry entry = entryMapper.findByKeyword(keyword);
-        log.info("got entry:" + entry);
+        log.info("got entry:" + System.nanoTime() + ", " + entry);
         if (entry == null) throw new NotFoundException();
 
         EntryDto entryDto = modelMapper.map(entry, EntryDto.class);
         HtmlifyService htmlifyService = new HtmlifyService();
-        log.info("htmlify start:" + keyword);
+        log.info("htmlify start:" + System.nanoTime() + ", " + keyword);
         entryDto.setHtml(htmlifyService.htmlify(entry.getDescription()));
-        log.info("htmlify end:" + keyword);
+        log.info("htmlify end:" + System.nanoTime() + ", " + keyword);
         entryDto.setStars(starService.fetch(entry.getKeyword()));
-        log.info("starService.fetch end:" + keyword);
+        log.info("starService.fetch end:" + System.nanoTime() + ", " + keyword);
         return entryDto;
     }
 
