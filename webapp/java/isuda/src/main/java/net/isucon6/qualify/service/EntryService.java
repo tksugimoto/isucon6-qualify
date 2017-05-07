@@ -39,7 +39,8 @@ public class EntryService {
     }
 
     private Long currentTime() {
-        return System.nanoTime() / 1000 | 10000;
+        Long mills = System.nanoTime() / 1000;
+        return mills % 10000;
     }
 
     class HtmlifyService {
