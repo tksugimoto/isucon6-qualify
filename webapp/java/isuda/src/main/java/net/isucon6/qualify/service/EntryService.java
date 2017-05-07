@@ -38,52 +38,59 @@ public class EntryService {
         this.keywordMapper = keywordMapper;
     }
 
-    private String htmlify(final String content) {
-        if (StringUtils.isEmpty(content)) {
-            return "";
+    class HtmlifyService {
+        private final List<String> keywords;
+
+        public HtmlifyService() {
+            keywords = keywordMapper.findAllKeywordsOrderByLength();
         }
 
-        List<String> keywords = keywordMapper.findAllKeywordsOrderByLength();
-
-        Matcher matcher = Pattern.compile(keywords.stream()
-                .map(Pattern::quote)
-                .collect(Collectors.joining("|", "(", ")"))).matcher(content);
-        Map<String, String> kw2sha = keywords.stream()
-                .collect(Collectors.toMap(
-                        keyword -> keyword,
-                        keyword -> "isuda_" + DigestUtils.sha1Hex(keyword)
-                ));
-        StringBuffer sbKw2Sha = new StringBuffer();
-        while (matcher.find()) {
-            matcher.appendReplacement(sbKw2Sha, kw2sha.get(matcher.group()));
-        }
-        String result = matcher.appendTail(sbKw2Sha).toString();
-        try {
-            for (Map.Entry<String, String> e : kw2sha.entrySet()) {
-                String kw = e.getKey();
-                String hash = e.getValue();
-                String link = String.format("<a href=\"%s\">%s</a>",
-                        String.format("/keyword/%s", URLEncoder.encode(kw, "UTF-8")),
-                        HtmlUtils.htmlEscape(kw, "UTF-8")
-                );
-                Matcher m = Pattern.compile(hash).matcher(result);
-                result = m.replaceAll(link);
+        public String htmlify(final String content) {
+            if (StringUtils.isEmpty(content)) {
+                return "";
             }
-        } catch (UnsupportedEncodingException e) {
-            log.warn("Failed to replace keyword.");
-        }
 
-        return result.replace("\n", "<br />");
+            Matcher matcher = Pattern.compile(keywords.stream()
+                    .map(Pattern::quote)
+                    .collect(Collectors.joining("|", "(", ")"))).matcher(content);
+            Map<String, String> kw2sha = keywords.stream()
+                    .collect(Collectors.toMap(
+                            keyword -> keyword,
+                            keyword -> "isuda_" + DigestUtils.sha1Hex(keyword)
+                    ));
+            StringBuffer sbKw2Sha = new StringBuffer();
+            while (matcher.find()) {
+                matcher.appendReplacement(sbKw2Sha, kw2sha.get(matcher.group()));
+            }
+            String result = matcher.appendTail(sbKw2Sha).toString();
+            try {
+                for (Map.Entry<String, String> e : kw2sha.entrySet()) {
+                    String kw = e.getKey();
+                    String hash = e.getValue();
+                    String link = String.format("<a href=\"%s\">%s</a>",
+                            String.format("/keyword/%s", URLEncoder.encode(kw, "UTF-8")),
+                            HtmlUtils.htmlEscape(kw, "UTF-8")
+                    );
+                    Matcher m = Pattern.compile(hash).matcher(result);
+                    result = m.replaceAll(link);
+                }
+            } catch (UnsupportedEncodingException e) {
+                log.warn("Failed to replace keyword.");
+            }
+
+            return result.replace("\n", "<br />");
+        }
     }
 
     public List<EntryDto> findHtmlEntries(int perPage, int currentPage) {
+        HtmlifyService htmlifyService = new HtmlifyService();
         Map<String, Integer> params = new HashMap<>();
         params.put("perPage", perPage);
         params.put("offset", (perPage * (currentPage - 1)));
         return entryMapper.findByPageNum(params).stream()
                 .map(e -> {
                     EntryDto ed = modelMapper.map(e, EntryDto.class);
-                    ed.setHtml(htmlify(e.getDescription()));
+                    ed.setHtml(htmlifyService.htmlify(e.getDescription()));
 
                     ed.setStars(starService.fetch(e.getKeyword()));
                     return ed;
@@ -98,7 +105,8 @@ public class EntryService {
         if (entry == null) throw new NotFoundException();
 
         EntryDto entryDto = modelMapper.map(entry, EntryDto.class);
-        entryDto.setHtml(htmlify(entry.getDescription()));
+        HtmlifyService htmlifyService = new HtmlifyService();
+        entryDto.setHtml(htmlifyService.htmlify(entry.getDescription()));
         entryDto.setStars(starService.fetch(entry.getKeyword()));
         return entryDto;
     }

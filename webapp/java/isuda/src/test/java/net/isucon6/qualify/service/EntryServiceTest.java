@@ -1,7 +1,7 @@
 package net.isucon6.qualify.service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -31,7 +31,7 @@ public class EntryServiceTest {
     private KeywordMapper keywordMapper;
 
     @Test
-    public void testHtmlify() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void testHtmlify() throws InstantiationException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String description = "123の説明です. 以下の文字列はリンクのはずです. ジゴロ / re[ge]xp / /html/escape";
         Mockito.when(keywordMapper.findAllKeywordsOrderByLength()).thenReturn(new ArrayList<String>() {{
             add("123");
@@ -41,9 +41,9 @@ public class EntryServiceTest {
         }});
 
         EntryService entryService = new EntryService(entryMapper, modelMapper, starService, keywordMapper);
-        Method method = entryService.getClass().getDeclaredMethod("htmlify", String.class);
-        method.setAccessible(true);
-        String actual = (String) method.invoke(entryService, description);
+        Constructor constructor = EntryService.HtmlifyService.class.getDeclaredConstructor(EntryService.class);
+        EntryService.HtmlifyService htmlifyService = (EntryService.HtmlifyService) constructor.newInstance(entryService);
+        String actual = htmlifyService.htmlify(description);
 
         assertThat(actual, is("<a href=\"/keyword/123\">123</a>の説明です. 以下の文字列はリンクのはずです. <a href=\"/keyword/%E3%82%B8%E3%82%B4%E3%83%AD\">ジゴロ</a> / <a href=\"/keyword/re%5Bge%5Dxp\">re[ge]xp</a> / <a href=\"/keyword/%2Fhtml%2Fescape\">/html/escape</a>"));
     }
