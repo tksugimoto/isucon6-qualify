@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
+import org.springframework.web.util.UriUtils;
 
 @Service
 public class EntryService {
@@ -61,7 +62,7 @@ public class EntryService {
                 String kw = e.getKey();
                 String hash = e.getValue();
                 String link = String.format("<a href=\"%s\">%s</a>",
-                        String.format("/keyword/%s", URLEncoder.encode(kw, "UTF-8")),
+                        String.format("/keyword/%s", UriUtils.encode(kw, "UTF-8")),
                         HtmlUtils.htmlEscape(kw, "UTF-8")
                 );
                 Matcher m = Pattern.compile(hash).matcher(result);
